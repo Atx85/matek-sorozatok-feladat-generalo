@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorozatok gyakorlasa</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.css" media="screen">
+    <style>
+        .megoldas {
+            background-color: black;
+            display: inline-block;
+            margin: 0;
+            color: black;
+        }
+        .megoldas:hover {
+            background-color: white;
+            color:  black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <button id="generate" class="btn btn-primary mb-3">Uj feladat</button>
+        <div class="feladatok"></div>
+    </div>
+    
+    <script>
+        function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function mertaniAn(a1, q, n) {
+  return (a1 * q^(n-1));
+}
+
+function mertaniSn(a1, q, n) {
+  return ( a1 * ((q^n - 1) / (q-1)) );
+}
+
+function szamtaniAn(a1, d, n) {
+  return (a1 + (n-1) * d);
+}
+
+function szamtaniSn(a1, an, n) {
+  return ( ((a1 + an) *  n) / 2 );
+}
+
+function getAn(type, a1, dq, n) {
+  switch( type ) {
+      case 0 : return mertaniAn(a1,dq,n); break;
+      case 1 : return szamtaniAn(a1,dq,n); break;
+  }
+  return false;
+}
+
+let tipus = ['mertani', 'szamtani'];
+
+function calcBase() {
+  return {
+    a1: getRandomInt(1,10),
+    dq: getRandomInt(1, 5),
+    type: getRandomInt(0,1)
+  };
+}
+
+function generate() {
+  let base = calcBase();
+  let n1 = getRandomInt(2,5);
+  let n2 = getRandomInt(2,10);
+	while( n2 == n1 ) n2 = getRandomInt(2,10);
+  let sNIndex = getRandomInt(2, 15);
+  let aN1 = getAn(base.type, base.a1, base.dq, n1 );
+  let aN2 = getAn(base.type, base.a1, base.dq, n2 );
+  let qSn = mertaniSn(base.a1, base.dq, sNIndex);
+	let dSn = szamtaniSn(base.a1, getAn(base.type, base.a1, base.dq, sNIndex), sNIndex);
+  let values = [
+    ['a1', base.a1],
+    ['a'+n1, aN1],
+    ['a'+n2, aN2],
+    [ ((base.type)?'d':'q'), base.dq ],
+    ['S' + sNIndex, ((base.type)?dSn:qSn)]
+  ];
+	let adatok = [];
+	adatok[0] = getRandomInt(0, values.length-1);
+	adatok[1] = getRandomInt(0, values.length-1);
+	while( adatok[0] == adatok[1] ) adatok[1] = getRandomInt(0,values.length-1);
+	let sentence = 'Adott egy ' + ((base.type)?'szamtani':'mertani') + ' sorozat, amelynek ismerjuk a kovetkezo adatait: ';
+	sentence += values[adatok[0]][0] + '= ' + values[adatok[0]][1] + ' es ' + values[adatok[1]][0] + ' = ' + values[adatok[1]][1] + '.';
+	sentence += ' Szamolja ki ';
+	values.forEach( (x,i) => {
+		if( i !== adatok[0] &&i !== adatok[1] ) sentence += values[i][0] + ',';
+	});
+	sentence.substring(0, sentence.length -1);
+	sentence += ' ertekeit.';
+	return {
+		feladat : sentence,
+		megoldas : values
+	}
+}
+
+let button = document.getElementById('generate');
+button.addEventListener('click', function(){
+    let feladat = generate();
+    let megoldas = [];
+    feladat.megoldas.forEach(x => megoldas.push(x.join("=")));
+    document.getElementsByClassName('feladatok')[0].innerHTML = `<h3>${feladat.feladat}</h3><p>Eredmenyek: </p><p class="megoldas">${megoldas.join(",")}</p>`;
+});
+
+// document.getElementsByClassName('megoldas')[0].innerHTML = feladat.megoldas;
+
+</script>
+</body>
+</html>
